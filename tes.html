@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/mdb.css">
+    <title>Document</title>
+    <style>
+        body {
+            padding-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form action="#" id="iniForm" onsubmit="prosesForm()">
+            <input type="hidden" name="act" value="input">
+            <div class="form-outline mb-3">
+                <input type="text" name="nama" id="edtNama" class="form-control" />
+                <label class="form-label" for="edtNama">Nama Lengkap</label>
+            </div>
+            <div class="form-outline mb-3">
+                <input type="email" id="edtEmail" class="form-control" />
+                <label class="form-label" for="edtEmail">Alamat Email</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" name="hobby[]" value="Renang" id="edtHobby1">
+                <label class="form-check-label" for="edtHobby1">Renang</label>
+
+                <input type="checkbox" name="hobby[]" value="Voly" id="edtHobby2">
+                <label class="form-check-label" for="edtHobby2">Voly</label>
+
+                <input type="checkbox" name="hobby[]" value="Sepak Bola" id="edtHobby3">
+                <label class="form-check-label" for="edtHobby3">Sepak Bola</label>
+
+                <input type="checkbox" name="hobby[]" value="Tenis" id="edtHobby4">
+                <label class="form-check-label" for="edtHobby4">Tenis</label>
+            </div>
+            <div class="form-group">
+                <label>Foto</label>
+                <input type="file" name="file" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">simpan</button>
+        </form>
+        <p></p>
+        <div id="tampil"></div>
+        <button class="btn btn-danger" onclick="tes();">tes</button>
+
+    </div>
+
+    <script src="assets/js/mdb.js"></script>
+    <script src="assets/js/naylatools.js"></script>
+    <script>
+        function tes() {
+            var data = new FormData();
+            data.append("act", "dataa");
+            fetch('data.php', {
+                    method: 'POST',
+                    body: data
+                })
+                .then((response) => {
+                    if (response.status >= 200 && response.status <= 299) {
+                        return response.json();
+                    } else {
+                        throw Error(response.statusText);
+                    }
+                })
+                .then((jsonResponse) => {
+                    // do whatever you want with the JSON response
+                }).catch((error) => {
+                    // Handle the error
+                    console.log(error);
+                });
+        }
+
+        // dataBarang("data");
+
+        function dataBarang(act, div = "tampil") {
+            var data = new FormData();
+            data.append("act", act);
+            fetch('data.php', {
+                method: 'POST',
+                body: data
+            }).then(response => response.json()).then(hasil => {
+                if (hasil.data.length > 0) {
+                    let table = `<table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Barang</th>
+                                            <th>Ukuran Barang</th>
+                                            <th>Keterangan Barang</th>
+                                        </tr>
+                                    </thead>
+                                <tbody id="tableBody">`;
+                    for (let index = 0; index < hasil.data.length; index++) {
+                        table += `
+                            <tr>
+                                <td>${hasil.data[index].nama_barang}</td>
+                                <td>${hasil.data[index].ukuran_barang}</td>
+                                <td>${hasil.data[index].keterangan_barang}</td>
+                            </tr>
+                        `;
+                    }
+                    table += `
+                    </tbody>
+                    </table>`;
+                    document.getElementById(div).innerHTML = table;
+                } else {
+                    alert("Tidak Ada Data");
+                }
+            }).catch((error) => {
+                alert("Error: " + error);
+            });
+        }
+
+        function Render_RestApi_BrowseProduct(data) {
+            let main_data = document.getElementById('main_content_product');
+            main_data.innerHTML = "";
+            if (data.length > 0) {
+                for (let i = 0; i < data.length; i++) {
+                    let img = '';
+                    if (data[i].Img != '[]') {
+                        let objimg = JSON.parse(data[i].Img);
+                        if (objimg.length > 0) {
+                            img = objimg[0];
+                        }
+                    }
+                    let item = document.createElement('div');
+                    let link = `/product?id=${data[i].ID}`
+                    item.classList = `card-product-width`;
+                    item.innerHTML = `<a href="${link}" style="text-decoration: none; color:black">
+                                        <div class="card card-product shadow-hover">
+                                            <img src="${img}" class="card-img-top" alt="..." style="object-fit: contain; height:150px;border-radius:15px"/>
+                                            <div class="card-body bgprimary" style=" height:100px;border-radius:15px">
+                                                <h5 class="card-title nama-produk mb-1">${data[i].NameProduct.substring(0, 15)}</h5>
+                                                <div class="card-text">
+                                                    <b class="harga-produk">Rp. ${Number_Format(data[i].Price)}</b> <br>
+                                                    <div class="nama-store" style="font-size:12px;">
+                                                        <i class="material-icons">store</i>
+                                                        <span class="nama">${data[i].SellerName}</span>
+                                                        <span class="alamat">${data[i].SellerCityName}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>`
+                    main_data.appendChild(item);
+                }
+
+                document.getElementById('main_content_product_notfound').style.display = 'none';
+                document.getElementById('main_content_product').style.display = 'flex';
+            } else {
+                document.getElementById('main_content_product').style.display = 'none';
+                document.getElementById('main_content_product_notfound').style.display = 'flex';
+            }
+        }
+    </script>
+</body>
+
+</html>

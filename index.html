@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Barang</title>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+</head>
+
+<body>
+    <h1>Data Barang</h1>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal" onclick="formInputKeluarga();">
+        Input Data
+    </button>
+    <div class="container">
+        <div class="container">
+            <div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
+                <div class="col">
+                    <div class="p-3 border bg-light">Row column</div>
+                </div>
+                <div class="col">
+                    <div class="p-3 border bg-light">Row column</div>
+                </div>
+                <div class="col">
+                    <div class="p-3 border bg-light">Row column</div>
+                </div>
+                <div class="col">
+                    <div class="p-3 border bg-light">Row column</div>
+                </div>
+                <div class="col">
+                    <div class="p-3 border bg-light">Row column</div>
+                </div>
+                <div class="col">
+                    <div class="p-3 border bg-light">Row column</div>
+                </div>
+                <div class="col">
+                    <div class="p-3 border bg-light">Row column</div>
+                </div>
+                <div class="col">
+                    <div class="p-3 border bg-light">Row column</div>
+                </div>
+                <div class="col">
+                    <div class="p-3 border bg-light">Row column</div>
+                </div>
+                <div class="col">
+                    <div class="p-3 border bg-light">Row column</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tampil"></div>
+
+    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="judulModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="#" id="iniForm" onsubmit="prosesForm();" class="needs-validation" novalidate>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="judulModal">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="modalBody">
+                        Memuat . . .
+                    </div>
+                    <div class="modal-footer" id="modalFooter">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" id="simpan" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/popper.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/naylatools.js"></script>
+    <script>
+        function formInputKeluarga() {
+            let form = `
+                <input type="hidden" name="act" value="input">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" name="nama" class="form-control fokus" required>
+                    <div class="invalid-feedback">
+                        Silahkan Isi Nama Terlebih Dahulu
+                    </div>
+                </div>
+            `;
+            document.getElementById("modalBody").innerHTML = form;
+            document.getElementById("modal").addEventListener('shown.bs.modal', function() {
+                document.getElementsByClassName("fokus")[0].focus();
+            })
+        }
+
+        load("halaman2.php");
+
+        function dataBarang(act, div = "tampil") {
+            var data = new FormData();
+            data.append("act", act);
+            fetch('data.php', {
+                method: 'POST',
+                body: data
+            }).then(response => response.json()).then(hasil => {
+                if (hasil.data.length > 0) {
+                    let table = `<table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nama Barang</th>
+                                    <th>Ukuran Barang</th>
+                                    <th>Keterangan Barang</th>
+                                </tr>
+                            </thead>
+                        <tbody id="tableBody">`;
+                    for (let index = 0; index < hasil.data.length; index++) {
+                        table += `
+                    <tr>
+                        <td>${hasil.data[index].nama_barang}</td>
+                        <td>${hasil.data[index].ukuran_barang}</td>
+                        <td>${hasil.data[index].keterangan_barang}</td>
+                    </tr>
+                `;
+                    }
+                    table += `
+            </tbody>
+            </table>`;
+                    document.getElementById(div).innerHTML = table;
+                } else {
+                    alert("Tidak Ada Data");
+                }
+            }).catch((error) => {
+                alert("Error: " + error);
+            });
+        }
+    </script>
+</body>
+
+</html>
